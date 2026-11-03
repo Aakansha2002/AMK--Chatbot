@@ -1,0 +1,58 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AMK Hospitality · Guest relations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'chatbot/app.css' %}">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="#"><span class="brand-mark">A<span>✦</span></span><span class="brand-name">AMK <b>HOSPITALITY</b></span></a>
+    <div class="workspace-label">WORKSPACE</div>
+    <nav class="nav">
+      <a class="nav-item active" href="#"><span class="nav-icon">▦</span> Overview <span class="nav-count">{{ totals.all }}</span></a>
+      <a class="nav-item" href="#leads"><span class="nav-icon">♧</span> Lead inbox</a>
+      <a class="nav-item" href="#assistant"><span class="nav-icon">✧</span> AI assistant <span class="live-dot"></span></a>
+    </nav>
+    <div class="sidebar-divider"></div>
+    <div class="workspace-label">ROUTING TEAMS</div>
+    <div class="team-link"><span class="team-dot events"></span><span>Weddings &amp; Events</span><span class="team-number">{{ totals.events }}</span></div>
+    <div class="team-link"><span class="team-dot travel"></span><span>AMK Travels</span><span class="team-number">{{ totals.travel }}</span></div>
+    <div class="team-link"><span class="team-dot other"></span><span>Other services</span></div>
+    <div class="sidebar-bottom">
+      <div class="support-card"><div class="support-icon">✦</div><strong>Every guest, warmly welcomed.</strong><p>Your assistant is ready around the clock.</p><span class="status-line"><i></i> Assistant is online</span></div>
+      <div class="profile"><div class="avatar">AM</div><div><strong>AMK Hospitality</strong><small>Workspace admin</small></div><span class="profile-menu">···</span></div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar"><div class="crumb">Workspace <span>/</span> <b>Overview</b></div><div class="top-actions"><span class="today"><span class="calendar-icon">▣</span> {{ today_label }}</span><button class="icon-button" aria-label="Notifications">♧<i></i></button><div class="avatar small">AM</div></div></header>
+    <section class="page-heading"><div><div class="eyebrow">{{ today|date:"l, F j, Y"|upper }}</div><h1>Good morning, AMK <span>✦</span></h1><p>Here's what's happening with your guest enquiries today.</p></div><button class="primary-button" id="new-enquiry"><span>＋</span> Preview assistant</button></section>
+    <section class="stats-grid">
+      <article class="stat-card"><div class="stat-top"><span class="stat-label">Total enquiries</span><span class="stat-icon violet">✧</span></div><div class="stat-value">{{ totals.all }}<span class="stat-trend">↗ Last 7 days</span></div><div class="stat-note">Qualified conversations received</div><div class="sparkline violet-line">{% for point in trends.all %}<i title="{{ point.value }} enquiries" style="height:{{ point.height }}%"></i>{% endfor %}</div></article>
+      <article class="stat-card"><div class="stat-top"><span class="stat-label">Needs follow-up</span><span class="stat-icon amber">◷</span></div><div class="stat-value">{{ totals.new }}<span class="stat-trend warm">New leads</span></div><div class="stat-note">Ready for your team's attention</div><div class="sparkline amber-line">{% for point in trends.new %}<i title="{{ point.value }} new leads" style="height:{{ point.height }}%"></i>{% endfor %}</div></article>
+      <article class="stat-card"><div class="stat-top"><span class="stat-label">Events &amp; weddings</span><span class="stat-icon rose">♡</span></div><div class="stat-value">{{ totals.events }}<span class="stat-trend rose-text">Event enquiries</span></div><div class="stat-note">Routed to your celebrations team</div><div class="sparkline rose-line">{% for point in trends.events %}<i title="{{ point.value }} event leads" style="height:{{ point.height }}%"></i>{% endfor %}</div></article>
+      <article class="stat-card"><div class="stat-top"><span class="stat-label">Travel enquiries</span><span class="stat-icon teal">⌁</span></div><div class="stat-value">{{ totals.travel }}<span class="stat-trend teal-text">Travel plans</span></div><div class="stat-note">Routed to AMK Travels</div><div class="sparkline teal-line">{% for point in trends.travel %}<i title="{{ point.value }} travel leads" style="height:{{ point.height }}%"></i>{% endfor %}</div></article>
+    </section>
+    <section class="content-grid" id="leads">
+      <div class="panel lead-panel"><div class="panel-heading"><div><h2>Recent enquiries</h2><p>Qualified guests, ready for a personal follow-up.</p></div><button class="text-button" id="view-all">View all <span>→</span></button></div>
+        <div class="filter-row"><div class="tabs"><button class="tab active" data-filter="all">All enquiries <span>{{ totals.all }}</span></button><button class="tab" data-filter="new">New <span>{{ totals.new }}</span></button><button class="tab" data-filter="events">Events</button><button class="tab" data-filter="travel">Travel</button></div><button class="filter-button" id="filter-toggle">☷ <span>Filter</span></button></div>
+        <div class="lead-table-wrap"><table class="lead-table"><thead><tr><th>GUEST</th><th>DEPARTMENT</th><th>REQUIREMENT</th><th>RECEIVED</th><th>STATUS</th><th></th></tr></thead><tbody id="lead-rows"></tbody></table><div class="empty-state" id="empty-state"><div class="empty-art"><span>✧</span><i></i></div><h3>Your guest list starts here</h3><p>When a guest shares their plans and contact details, their qualified enquiry will appear here.</p><button class="outline-button" id="empty-preview">Try the assistant <span>→</span></button></div></div>
+        <div class="table-footer"><span id="table-caption">Showing 0 enquiries</span><div class="pagination"><button disabled>←</button><button class="page-current">1</button><button disabled>→</button></div></div>
+      </div>
+      <aside class="right-column"><div class="panel assistant-card" id="assistant"><div class="assistant-head"><div class="assistant-symbol">✧</div><div><h3>AMK concierge</h3><span><i></i> Ready to welcome guests</span></div><button class="more-button">···</button></div><div class="assistant-preview"><div class="preview-spark">✦</div><p id="latest-reply">{{ reply_preview }}</p><span>Latest assistant reply</span></div><div class="assistant-metrics"><div><strong>24<span>/7</span></strong><small>Always welcoming</small></div><div><strong>3</strong><small>Routing teams</small></div></div><button class="launch-button" id="launch-chat">Open preview <span>↗</span></button></div>
+      <div class="panel channel-card"><div class="panel-heading compact"><div><h3>Message AMK</h3><p>Open a direct conversation</p></div><span class="channel-live" id="channel-health">CHECKING</span></div><div class="channel-row" data-channel="website"><span class="channel-icon web-icon">◎</span><div><b>Website chat</b><small class="channel-detail">Checking status…</small></div><span class="channel-state"><i></i><span class="channel-state-label">Checking</span></span></div><a class="channel-row channel-link" data-channel="instagram" href="{{ instagram_dm_url }}" target="_blank" rel="noopener noreferrer"><span class="channel-icon instagram-icon">◉</span><span class="channel-copy"><b>@{{ instagram_username }}</b><small class="channel-detail">Opening Instagram DM…</small></span><span class="channel-state"><span class="channel-state-label">Open DM ↗</span></span></a><a class="channel-row channel-link" data-channel="whatsapp" href="{{ whatsapp_dm_url }}" target="_blank" rel="noopener noreferrer"><span class="channel-icon whatsapp-icon">◉</span><span class="channel-copy"><b>WhatsApp</b><small class="channel-detail">Opening chat…</small></span><span class="channel-state"><span class="channel-state-label">Open chat ↗</span></span></a><div class="channel-foot">Direct messages open in Instagram or WhatsApp.</div></div>
+      </aside>
+    </section>
+    <footer class="footer"><span>AMK HOSPITALITY <i>·</i> GUEST RELATIONS</span><span>Made for moments that matter <b>✦</b></span></footer>
+  </main>
+</div>
+<div class="lead-overlay" id="lead-overlay" aria-hidden="true"><section class="lead-dialog" role="dialog" aria-modal="true" aria-labelledby="lead-dialog-title"><div class="lead-dialog-head"><div><div class="eyebrow">QUALIFIED ENQUIRY</div><h2 id="lead-dialog-title">Guest details</h2></div><button class="close-chat" id="close-lead" aria-label="Close lead details">×</button></div><div class="lead-detail-content" id="lead-detail-content"></div><div class="lead-dialog-actions"><label for="lead-status-select">Lead status</label><select id="lead-status-select"><option value="new">New</option><option value="contacted">Contacted</option><option value="converted">Converted</option><option value="closed">Closed</option></select><button class="primary-button" id="save-lead-status">Save status</button></div></section></div>
+<div class="chat-overlay" id="chat-overlay" aria-hidden="true"><div class="chat-window"><div class="chat-head"><div class="chat-brand"><span class="chat-logo">A<span>✦</span></span><div><strong>AMK Hospitality</strong><small><i></i> Here to help, anytime</small></div></div><button class="close-chat" id="close-chat" aria-label="Close chat">×</button></div><div class="chat-content"><div class="chat-intro"><div class="intro-mark">✦</div><h2>A warm welcome,<br>whenever you need it.</h2><p>I'm your AMK assistant. Tell me what you're dreaming up and I'll find the right people to help.</p><div class="welcome-chips"><button data-message="Plan an event">♡ &nbsp;Plan an event</button><button data-message="Plan a trip">⌁ &nbsp;Plan a trip</button></div></div><div class="chat-messages" id="chat-messages"></div></div><form class="chat-compose" id="chat-form"><input id="chat-input" autocomplete="off" placeholder="Write a message…" aria-label="Write a message"><button type="submit" aria-label="Send message">↑</button></form><div class="chat-foot">A little help from <b>AMK assistant</b> <span>✦</span></div></div></div>
+{{ leads|json_script:"initial-leads" }}
+<script src="{% static 'chatbot/app.js' %}"></script>
+</body></html>
